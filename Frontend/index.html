@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payslip Generator</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fc;
+        }
+        .container { 
+            background: linear-gradient(5deg, #11b35c1a 60%, #ee97ff1a 40%);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 1000px;
+            margin: 40px auto;
+        }
+        header {
+            position: relative;
+            text-align: center;
+            background: linear-gradient(135deg, #4a00e0 0%, #8e2de2 100%);
+            color: #ffffff;
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.8rem;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        header p {
+            font-weight: 400;
+            font-size: 1.2rem;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+        .banner-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .circle {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            animation: moveCircles 10s infinite linear;
+        }
+        .circle:nth-child(1) { top: 10%; left: 20%; animation-duration: 8s; }
+        .circle:nth-child(2) { top: 50%; left: 70%; animation-duration: 12s; }
+        .circle:nth-child(3) { top: 80%; left: 40%; animation-duration: 15s; }
+        @keyframes moveCircles {
+            0% { transform: translateY(0) translateX(0); }
+            50% { transform: translateY(-50%) translateX(-50%); }
+            100% { transform: translateY(0) translateX(0); }
+        }
+        .form {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 450px;
+            margin: 30px auto;
+        }
+        .form h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            color: #333;
+        }
+        .form label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin: 10px 0 5px;
+            color: #444;
+        }
+        .form input, .form select {
+            padding: 12px;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        .form input:focus, .form select:focus {
+            border-color: #4a00e0;
+            outline: none;
+        }
+        button {
+            background: #4a00e0;
+            color: #ffffff;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            margin-top: 20px;
+        }
+        button:hover {
+            background: #6a11cb;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .payslip {
+            display: none;
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+        .header {
+            margin-bottom: 20px;
+        }
+        .header h3 {
+            font-weight: 700;
+            font-size: 2.2rem;
+            color: #333;
+            margin: 0;
+        }
+        .header span {
+            display: block;
+            font-size: 1.2rem;
+            color: #666;
+        }
+        .branch {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            color: #444;
+        }
+        .details {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 15px 0;
+            font-size: 1rem;
+            color: #444;
+        }
+        .section {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .net {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: #333;
+        }
+        .in-words {
+            margin-top: 15px;
+            font-style: italic;
+            color: #666;
+        }
+        .signature {
+            margin-top: 40px;
+            text-align: right;
+            font-size: 1.2rem;
+            color: #333;
+        }
+        .border {
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            font-size: 1rem;
+        }
+        .column {
+            flex: 1;
+            padding: 0 15px;
+        }
+        .error-message {
+            color: #e63946;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+        @media screen and (max-width: 1024px) {
+            .container { width: 90%; padding: 20px; }
+            header h1 { font-size: 2.2rem; }
+            header p { font-size: 1rem; }
+            .form { width: 80%; }
+            .details, .section, .row { flex-direction: column; font-size: 0.9rem; }
+            .signature { text-align: center; font-size: 1rem; }
+        }
+        @media screen and (max-width: 768px) {
+            header h1 { font-size: 1.8rem; }
+            header p { font-size: 0.9rem; }
+            .container { width: 95%; padding: 15px; }
+            .form { width: 90%; padding: 20px; }
+            .header h3 { font-size: 1.6rem; }
+            .header span { font-size: 1rem; }
+            .branch { justify-content: center; font-size: 1rem; }
+            button { font-size: 0.9rem; }
+        }
+        @media screen and (max-width: 480px) {
+            header h1 { font-size: 1.5rem; }
+            header p { font-size: 0.8rem; }
+            .container { width: 98%; padding: 10px; }
+            .form { width: 95%; padding: 15px; }
+            .form h2 { font-size: 1.5rem; }
+            .form label { font-size: 0.8rem; }
+            .form input, .form select { font-size: 0.9rem; }
+            .header h3 { font-size: 1.4rem; }
+            .header span { font-size: 0.9rem; }
+            .branch { font-size: 0.9rem; }
+            .details, .section { font-size: 0.8rem; }
+            .signature { font-size: 0.9rem; }
+            button { font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="banner-background">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+        </div>
+        <h1>Employee Payroll System</h1>
+        <p>Securely generate and manage employee payslips</p>
+    </header>
+    <div class="container">
+        <div class="form">
+            <h2>Generate Payslip</h2>
+            <form id="payslip-form">
+                <label for="employee-name">Employee Name:</label>
+                <input type="text" id="employee-name" name="employee-name" placeholder="Enter Employee Name" required minlength="3" maxlength="50" pattern="^[A-Za-z]+(?:\.[A-Za-z]+)*(?: [A-Za-z]+)*(?:\.[A-Za-z]+){0,3}$" title="Name cannot start with a space, no consecutive spaces allowed, maximum 8 spaces and 3 periods allowed." />
+                <span id="employee-name-error" class="error-message"></span>
+
+                <label for="employeeID">Employee ID:</label>
+                <input type="text" id="employeeID" name="employeeID" placeholder="Enter Employee ID (e.g., ATS0001)" required minlength="7" maxlength="7" pattern="^[ATS]{3}0(?!000)[0-9]{3}$" title="Employee ID should be 3 uppercase letters (A, T, or S) followed by 4 digits (not 0000)." />
+                <span id="employeeID-error" class="error-message"></span>
+
+                <label for="month">Select Month:</label>
+                <input type="month" name="month" id="month" required />
+                <span id="month-error" class="error-message"></span>
+
+                <label for="employee-password">Employee Password:</label>
+                <input type="password" id="employee-password" name="employee-password" placeholder="Enter Password (8-30 characters)" required minlength="8" maxlength="30" />
+                <span id="employee-password-error" class="error-message"></span>
+
+                <button type="submit">Generate Payslip</button>
+            </form>
+        </div>
+        <div class="payslip" id="payslip">
+            <div class="header">
+                <h3>Payslip</h3>
+                <span id="month-span">Payment slip for the month of October 2024</span>
+            </div>
+            <div class="branch">
+                <div>Working Branch: <strong>Hyderabad</strong></div>
+            </div>
+            <div class="details">
+                <div><strong>EMP Code:</strong> <span id="emp-code">39124</span></div>
+                <div><strong>EMP Name:</strong> <span id="employee-name-span">Employee name</span></div>
+            </div>
+            <div class="details">
+                <div><strong>PF No.:</strong> 101523065714</div>
+                <div><strong>Working Days:</strong> 28</div>
+            </div>
+            <div class="details">
+                <div><strong>ESI No.:</strong> 1234567890</div>
+                <div><strong>Mode of Pay:</strong> Digital</div>
+            </div>
+            <div class="details">
+                <div><strong>Designation:</strong> Developer</div>
+                <div><strong>Ac No.:</strong> *******0701</div>
+            </div>
+            <div class="row">
+                <div class="column">
+                    <strong>Earnings</strong>
+                    <div class="section"><div>Basic Salary</div></div>
+                    <div class="section"><div>Dearness Allowance</div></div>
+                    <div class="section"><div>House Rent Allowance</div></div>
+                    <div class="section"><div>Wage Allowance</div></div>
+                    <div class="section"><div>Medical Allowance</div></div>
+                </div>
+                <div class="column">
+                    <strong>Amount</strong>
+                    <div class="section"><div id="basic-salary">16,250.00</div></div>
+                    <div class="section"><div id="dearness-allowance">550.00</div></div>
+                    <div class="section"><div id="house-rent-allowance">1,650.00</div></div>
+                    <div class="section"><div id="wage-allowance">120.00</div></div>
+                    <div class="section"><div id="medical-allowance">3,000.00</div></div>
+                </div>
+                <div class="column">
+                    <strong>Deductions</strong>
+                    <div class="section"><div>Provident Fund</div></div>
+                    <div class="section"><div>Employee State Insurance</div></div>
+                    <div class="section"><div>Tax Deducted at Source</div></div>
+                    <div class="section"><div>Leave Without Pay</div></div>
+                    <div class="section"><div>Special Deduction</div></div>
+                    <div class="section"><div>Other Deduction</div></div>
+                </div>
+                <div class="column">
+                    <strong>Amount</strong>
+                    <div class="section"><div id="provident-fund">1,800.00</div></div>
+                    <div class="section"><div id="employee-state-insurance">142.00</div></div>
+                    <div class="section"><div id="tax-deducted">0.00</div></div>
+                    <div class="section"><div id="leave-without-pay">0.00</div></div>
+                    <div class="section"><div id="special-deduction">500.00</div></div>
+                    <div class="section"><div id="other-deduction">2,442.00</div></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="column net">
+                    <span id="net-pay">Net Pay: 24,528.00</span>
+                </div>
+                <div class="column border">
+                    <div>
+                        <span>In Words</span>
+                        <span id="net-pay-words">Twenty Four thousand five hundred twenty-eight only</span>
+                    </div>
+                </div>
+            </div>
+            <div class="signature">
+                <div><strong>Astrolite Tech Solutions</strong></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('payslip-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const employeeName = document.getElementById('employee-name').value;
+            const employeeID = document.getElementById('employeeID').value;
+            const month = document.getElementById('month').value;
+            const employeePassword = document.getElementById('employee-password').value;
+
+            let isValid = true;
+
+            // Validate name
+            const namePattern = /^[A-Za-z]+(?:\.[A-Za-z]+)*(?: [A-Za-z]+)*(?:\.[A-Za-z]+){0,3}$/;
+            const nameError = document.getElementById('employee-name-error');
+            if (!namePattern.test(employeeName)) {
+                nameError.innerText = 'Invalid name format.';
+                nameError.style.display = 'block';
+                isValid = false;
+            } else {
+                nameError.style.display = 'none';
+            }
+
+            // Validate ID
+            const idPattern = /^[ATS]{3}0(?!000)[0-9]{3}$/;
+            const idError = document.getElementById('employeeID-error');
+            if (!idPattern.test(employeeID)) {
+                idError.innerText = 'Invalid ID format. Use 3 letters (A, T, or S) followed by 4 digits (not 0000).';
+                idError.style.display = 'block';
+                isValid = false;
+            } else {
+                idError.style.display = 'none';
+            }
+
+            // Validate month
+            const monthError = document.getElementById('month-error');
+            if (!month) {
+                monthError.innerText = 'Please select a month.';
+                monthError.style.display = 'block';
+                isValid = false;
+            } else {
+                const [selectedYear, selectedMonth] = month.split('-').map(Number);
+                const minYear = 2021;
+                const minMonth = 1;
+                const today = new Date();
+                const maxYear = today.getFullYear();
+                const maxMonth = today.getMonth() + 1; // 1-based, April 2025 = 4
+                console.log('Frontend month validation:', { selectedYear, selectedMonth, maxYear, maxMonth });
+                if (
+                    selectedYear < minYear || 
+                    (selectedYear === minYear && selectedMonth < minMonth) ||
+                    selectedYear > maxYear ||
+                    (selectedYear === maxYear && selectedMonth > maxMonth)
+                ) {
+                    monthError.innerText = 'Select a month between January 2021 and April 2025.';
+                    monthError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    monthError.style.display = 'none';
+                }
+            }
+
+            // Validate employee password
+            const passwordError = document.getElementById('employee-password-error');
+            if (employeePassword.length < 8 || employeePassword.length > 30) {
+                passwordError.innerText = 'Password must be between 8 and 30 characters.';
+                passwordError.style.display = 'block';
+                isValid = false;
+            } else {
+                passwordError.style.display = 'none';
+            }
+
+            if (isValid) {
+                try {
+                    const response = await fetch('http://localhost:3000/api/payslip', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            employeeName, 
+                            employeeID, 
+                            month, 
+                            employeePassword,
+                            basicSalary: 16250.00,
+                            dearnessAllowance: 550.00,
+                            houseRentAllowance: 1650.00,
+                            wageAllowance: 120.00,
+                            medicalAllowance: 3000.00,
+                            providentFund: 1800.00,
+                            employeeStateInsurance: 142.00,
+                            taxDeductedAtSource: 0.00,
+                            leaveWithoutPay: 0.00,
+                            specialDeduction: 500.00,
+                            otherDeduction: 2442.00
+                        })
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        const payslip = data.data;
+                        // Parse numeric fields to handle strings
+                        const numericFields = [
+                            'basic_salary',
+                            'dearness_allowance',
+                            'house_rent_allowance',
+                            'wage_allowance',
+                            'medical_allowance',
+                            'provident_fund',
+                            'employee_state_insurance',
+                            'tax_deducted_at_source',
+                            'leave_without_pay',
+                            'special_deduction',
+                            'other_deduction',
+                            'net_pay'
+                        ];
+                        numericFields.forEach(field => {
+                            payslip[field] = parseFloat(payslip[field]);
+                        });
+
+                        document.getElementById('employee-name-span').innerText = payslip.employee_name;
+                        document.getElementById('emp-code').innerText = payslip.employee_id;
+                        document.getElementById('basic-salary').innerText = payslip.basic_salary.toFixed(2);
+                        document.getElementById('dearness-allowance').innerText = payslip.dearness_allowance.toFixed(2);
+                        document.getElementById('house-rent-allowance').innerText = payslip.house_rent_allowance.toFixed(2);
+                        document.getElementById('wage-allowance').innerText = payslip.wage_allowance.toFixed(2);
+                        document.getElementById('medical-allowance').innerText = payslip.medical_allowance.toFixed(2);
+                        document.getElementById('provident-fund').innerText = payslip.provident_fund.toFixed(2);
+                        document.getElementById('employee-state-insurance').innerText = payslip.employee_state_insurance.toFixed(2);
+                        document.getElementById('tax-deducted').innerText = payslip.tax_deducted_at_source.toFixed(2);
+                        document.getElementById('leave-without-pay').innerText = payslip.leave_without_pay.toFixed(2);
+                        document.getElementById('special-deduction').innerText = payslip.special_deduction.toFixed(2);
+                        document.getElementById('other-deduction').innerText = payslip.other_deduction.toFixed(2);
+                        document.getElementById('net-pay').innerText = `Net Pay: ${payslip.net_pay.toFixed(2)}`;
+                        document.getElementById('net-pay-words').innerText = payslip.net_pay_words;
+
+                        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                        const [year, monthNum] = month.split('-');
+                        const monthName = monthNames[parseInt(monthNum) - 1];
+                        document.getElementById('month-span').innerText = `Payment slip for the month of ${monthName} ${year}`;
+                        document.getElementById('payslip').style.display = 'block';
+                        document.querySelector('.form').style.display = 'none';
+                    } else {
+                        console.error('Server error response:', data);
+                        document.getElementById('month-error').innerText = data.message || 'Error generating payslip.';
+                        document.getElementById('month-error').style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Form submission error:', error);
+                    document.getElementById('month-error').innerText = 'Server error. Please try again later.';
+                    document.getElementById('month-error').style.display = 'block';
+                }
+            }
+        });
+
+        document.getElementById('employee-name').addEventListener('input', function() {
+            const namePattern = /^[A-Za-z]+(?:\.[A-Za-z]+)*(?: [A-Za-z]+)*(?:\.[A-Za-z]+){0,3}$/;
+            const nameError = document.getElementById('employee-name-error');
+            if (!namePattern.test(this.value)) {
+                nameError.innerText = 'Invalid name format.';
+                nameError.style.display = 'block';
+            } else {
+                nameError.style.display = 'none';
+            }
+        });
+
+        document.getElementById('employeeID').addEventListener('input', function() {
+            const idPattern = /^[ATS]{3}(?!0000)[0-9]{4}$/;
+            const idError = document.getElementById('employeeID-error');
+            if (!idPattern.test(this.value)) {
+                idError.innerText = 'Invalid ID format. Use 3 letters (A, T, or S) followed by 4 digits (not 0000).';
+                idError.style.display = 'block';
+            } else {
+                idError.style.display = 'none';
+            }
+        });
+
+        document.getElementById('month').addEventListener('input', function() {
+            const monthError = document.getElementById('month-error');
+            if (!this.value) {
+                monthError.innerText = 'Please select a month.';
+                monthError.style.display = 'block';
+            } else {
+                const [selectedYear, selectedMonth] = this.value.split('-').map(Number);
+                const minYear = 2021;
+                const minMonth = 1;
+                const today = new Date();
+                const maxYear = today.getFullYear();
+                const maxMonth = today.getMonth() + 1; // 1-based, April 2025 = 4
+                console.log('Frontend month input:', { selectedYear, selectedMonth, maxYear, maxMonth });
+                if (
+                    selectedYear < minYear || 
+                    (selectedYear === minYear && selectedMonth < minMonth) ||
+                    selectedYear > maxYear ||
+                    (selectedYear === maxYear && selectedMonth > maxMonth)
+                ) {
+                    monthError.innerText = 'Select a month between January 2021 and April 2025.';
+                    monthError.style.display = 'block';
+                } else {
+                    monthError.style.display = 'none';
+                }
+            }
+        });
+
+        document.getElementById('employee-password').addEventListener('input', function() {
+            const passwordError = document.getElementById('employee-password-error');
+            if (this.value.length < 8 || this.value.length > 30) {
+                passwordError.innerText = 'Password must be between 8 and 30 characters.';
+                passwordError.style.display = 'block';
+            } else {
+                passwordError.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
