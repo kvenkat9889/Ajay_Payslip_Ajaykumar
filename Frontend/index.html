@@ -254,7 +254,7 @@
                 <span id="employee-name-error" class="error-message"></span>
 
                 <label for="employeeID">Employee ID:</label>
-                <input type="text" id="employeeID" name="employeeID" placeholder="Enter Employee ID (e.g., ATS0001)" required minlength="7" maxlength="7" pattern="^[ATS]{3}0(?!000)[0-9]{3}$" title="Employee ID should be 3 uppercase letters (A, T, or S) followed by 4 digits (not 0000)." />
+                <input type="text" id="employeeID" name="employeeID" placeholder="Enter Employee ID (e.g., ATS0123)" required minlength="7" maxlength="7" pattern="^[ATS]{3}0(?!000)[0-9]{3}$" title="Employee ID should be 3 uppercase letters (A, T, or S), followed by 0, then 3 digits (not 000)." />
                 <span id="employeeID-error" class="error-message"></span>
 
                 <label for="month">Select Month:</label>
@@ -264,6 +264,10 @@
                 <label for="employee-password">Employee Password:</label>
                 <input type="password" id="employee-password" name="employee-password" placeholder="Enter Password (8-30 characters)" required minlength="8" maxlength="30" />
                 <span id="employee-password-error" class="error-message"></span>
+
+                <label for="ctc">CTC (Annual, in INR):</label>
+                <input type="number" id="ctc" name="ctc" placeholder="Enter CTC (100,000 to 4,000,000)" required min="100000" max="4000000" step="5000" />
+                <span id="ctc-error" class="error-message"></span>
 
                 <button type="submit">Generate Payslip</button>
             </form>
@@ -277,7 +281,7 @@
                 <div>Working Branch: <strong>Hyderabad</strong></div>
             </div>
             <div class="details">
-                <div><strong>EMP Code:</strong> <span id="emp-code">39124</span></div>
+                <div><strong>EMP Code:</strong> <span id="emp-code">ATS0123</span></div>
                 <div><strong>EMP Name:</strong> <span id="employee-name-span">Employee name</span></div>
             </div>
             <div class="details">
@@ -303,11 +307,11 @@
                 </div>
                 <div class="column">
                     <strong>Amount</strong>
-                    <div class="section"><div id="basic-salary">16,250.00</div></div>
-                    <div class="section"><div id="dearness-allowance">550.00</div></div>
-                    <div class="section"><div id="house-rent-allowance">1,650.00</div></div>
-                    <div class="section"><div id="wage-allowance">120.00</div></div>
-                    <div class="section"><div id="medical-allowance">3,000.00</div></div>
+                    <div class="section"><div id="basic-salary">0.00</div></div>
+                    <div class="section"><div id="dearness-allowance">0.00</div></div>
+                    <div class="section"><div id="house-rent-allowance">0.00</div></div>
+                    <div class="section"><div id="wage-allowance">0.00</div></div>
+                    <div class="section"><div id="medical-allowance">0.00</div></div>
                 </div>
                 <div class="column">
                     <strong>Deductions</strong>
@@ -320,22 +324,22 @@
                 </div>
                 <div class="column">
                     <strong>Amount</strong>
-                    <div class="section"><div id="provident-fund">1,800.00</div></div>
-                    <div class="section"><div id="employee-state-insurance">142.00</div></div>
+                    <div class="section"><div id="provident-fund">0.00</div></div>
+                    <div class="section"><div id="employee-state-insurance">0.00</div></div>
                     <div class="section"><div id="tax-deducted">0.00</div></div>
                     <div class="section"><div id="leave-without-pay">0.00</div></div>
-                    <div class="section"><div id="special-deduction">500.00</div></div>
-                    <div class="section"><div id="other-deduction">2,442.00</div></div>
+                    <div class="section"><div id="special-deduction">0.00</div></div>
+                    <div class="section"><div id="other-deduction">0.00</div></div>
                 </div>
             </div>
             <div class="row">
                 <div class="column net">
-                    <span id="net-pay">Net Pay: 24,528.00</span>
+                    <span id="net-pay">Net Pay: 0.00</span>
                 </div>
                 <div class="column border">
                     <div>
                         <span>In Words</span>
-                        <span id="net-pay-words">Twenty Four thousand five hundred twenty-eight only</span>
+                        <span id="net-pay-words">Zero only</span>
                     </div>
                 </div>
             </div>
@@ -352,6 +356,7 @@
             const employeeID = document.getElementById('employeeID').value;
             const month = document.getElementById('month').value;
             const employeePassword = document.getElementById('employee-password').value;
+            const ctc = parseFloat(document.getElementById('ctc').value);
 
             let isValid = true;
 
@@ -370,7 +375,7 @@
             const idPattern = /^[ATS]{3}0(?!000)[0-9]{3}$/;
             const idError = document.getElementById('employeeID-error');
             if (!idPattern.test(employeeID)) {
-                idError.innerText = 'Invalid ID format. Use 3 letters (A, T, or S) followed by 4 digits (not 0000).';
+                idError.innerText = 'Invalid ID format. Use 3 letters (A, T, or S), 0, then 3 digits (not 000).';
                 idError.style.display = 'block';
                 isValid = false;
             } else {
@@ -415,6 +420,16 @@
                 passwordError.style.display = 'none';
             }
 
+            // Validate CTC
+            const ctcError = document.getElementById('ctc-error');
+            if (!ctc || ctc < 100000 || ctc > 4000000 || (ctc % 5000 !== 0)) {
+                ctcError.innerText = 'CTC must be between 100,000 and 4,000,000 in steps of 5,000.';
+                ctcError.style.display = 'block';
+                isValid = false;
+            } else {
+                ctcError.style.display = 'none';
+            }
+
             if (isValid) {
                 try {
                     const response = await fetch('http://localhost:3000/api/payslip', {
@@ -425,17 +440,7 @@
                             employeeID, 
                             month, 
                             employeePassword,
-                            basicSalary: 16250.00,
-                            dearnessAllowance: 550.00,
-                            houseRentAllowance: 1650.00,
-                            wageAllowance: 120.00,
-                            medicalAllowance: 3000.00,
-                            providentFund: 1800.00,
-                            employeeStateInsurance: 142.00,
-                            taxDeductedAtSource: 0.00,
-                            leaveWithoutPay: 0.00,
-                            specialDeduction: 500.00,
-                            otherDeduction: 2442.00
+                            ctc
                         })
                     });
                     const data = await response.json();
@@ -443,6 +448,7 @@
                         const payslip = data.data;
                         // Parse numeric fields to handle strings
                         const numericFields = [
+                            'ctc',
                             'basic_salary',
                             'dearness_allowance',
                             'house_rent_allowance',
@@ -507,10 +513,10 @@
         });
 
         document.getElementById('employeeID').addEventListener('input', function() {
-            const idPattern = /^[ATS]{3}(?!0000)[0-9]{4}$/;
+            const idPattern = /^[ATS]{3}0(?!000)[0-9]{3}$/;
             const idError = document.getElementById('employeeID-error');
             if (!idPattern.test(this.value)) {
-                idError.innerText = 'Invalid ID format. Use 3 letters (A, T, or S) followed by 4 digits (not 0000).';
+                idError.innerText = 'Invalid ID format. Use 3 letters (ATS), 0, then 3 digits (not 000).';
                 idError.style.display = 'block';
             } else {
                 idError.style.display = 'none';
@@ -551,6 +557,17 @@
                 passwordError.style.display = 'block';
             } else {
                 passwordError.style.display = 'none';
+            }
+        });
+
+        document.getElementById('ctc').addEventListener('input', function() {
+            const ctcError = document.getElementById('ctc-error');
+            const ctc = parseFloat(this.value);
+            if (!ctc || ctc < 100000 || ctc > 4000000 || (ctc % 5000 !== 0)) {
+                ctcError.innerText = 'CTC must be between 100,000 and 4,000,000 in steps of 5,000.';
+                ctcError.style.display = 'block';
+            } else {
+                ctcError.style.display = 'none';
             }
         });
     </script>
