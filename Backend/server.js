@@ -2,12 +2,12 @@ const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
 const app = express();
-const port = 3000;
+const port = 3024;
 
 // Middleware
 app.use(express.json());
 app.use(cors({ 
-    origin: ['http://localhost:3000', 'http://127.0.0.1:5500'],
+    origin: ['http://54.166.206.245:3024', 'http://127.0.0.1:5500'],
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type']
 }));
@@ -15,9 +15,9 @@ app.use(cors({
 // PostgreSQL configuration
 const pool = new Pool({
     user: 'postgres',
-    host: 'localhost',
+    host: 'postgres',
     database: 'new_employee_db',
-    password: 'Password@12345',
+    password: 'admin123',
     port: 5432
 });
 
@@ -308,5 +308,5 @@ app.get('/health', (req, res) => {
 
 // Start server
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+    console.log(`Server running at http://54.166.206.245:${port}`);
 });
